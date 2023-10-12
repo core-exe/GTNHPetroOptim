@@ -15,7 +15,6 @@ optim = {
 
 # Light/Medium/Heavy steam cracking
 crack_mode_label = ('crack1', 'crack2', 'crack3')
-crack_mode_iter = itertools.product(crack_mode_label, crack_mode_label, crack_mode_label)
 
 # labeling: heavy, light, naphtha
 distill_data = {
@@ -76,6 +75,7 @@ def get_product_matrix(idx):
 def optimize(oil_type, score):
     max_score = float("-inf")
     max_idx = ()
+    crack_mode_iter = itertools.product(crack_mode_label, crack_mode_label, crack_mode_label)
     for idx in crack_mode_iter:
         transfer_matrix = get_transfer_matrix(idx)
         product_matrix = get_product_matrix(idx)
@@ -91,9 +91,11 @@ def optimize(oil_type, score):
     total_cracking_consumption = np.linalg.inv(np.eye(3) - transfer_matrix) @ distill_data[oil_type]
     total_product = product_matrix @ total_cracking_consumption
     current_score = score(total_product)
+    print("Optimized data for " + oil_type + " oil")
     print("Cracking setup:\n" + "\n".join(["{}: {}, input(B) per 1B oil: {:.4f}".format(input_label[i], max_idx[i], total_cracking_consumption[i]) for i in range(3)]) + "\n\n")
     print("Product(B) per 1B oil:\n" + "\n".join(["{}: {:.4f}".format(product_label[i], total_product[i]) for i in range(len(product_label))]) + "\n\n")
 
 #%%
 # example
-optimize("heavy", optim["propene"])
+optimize("light", optim["propene"])
+optimize("bc", optim["propene"])
